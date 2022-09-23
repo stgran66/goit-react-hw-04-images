@@ -14,6 +14,7 @@ export class SearchBar extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
+    this.setState({ query: '' });
     const query = e.currentTarget.query.value.trim();
 
     if (query === '') {
