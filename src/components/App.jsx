@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { ToastContainer } from 'react-toastify';
 import { SearchBar } from './SearchBar/SearchBar';
 import { StyledApp } from './App.styled';
 import { ImageGallery } from './ImageGallery/ImageGallery';
@@ -7,38 +8,11 @@ import { Loader } from './ImageGallery/Loader/Loader';
 
 export class App extends Component {
   state = {
-    images: null,
     query: '',
-    page: null,
-    totalPages: null,
-    perPage: 20,
-    status: 'idle',
   };
 
-  handleQuerySubmit = (data, query) => {
-    this.setState({ status: 'pending' });
-    if (data.hits.length > 0) {
-      setTimeout(
-        this.setState({
-          images: data.hits,
-          query: query,
-          page: 1,
-          totalPages: Math.ceil(data.totalHits / data.hits.length),
-        }),
-        5000
-      );
-    } else {
-      setTimeout(
-        this.setState({
-          images: [],
-          query: query,
-          page: null,
-          totalPages: null,
-        }),
-        5000
-      );
-    }
-    this.setState({ status: 'idle' });
+  handleQuerySubmit = query => {
+    this.setState({ query });
   };
 
   handleMoreImages = data => {
@@ -49,13 +23,12 @@ export class App extends Component {
   };
 
   render() {
-    const { page, perPage, images, query, totalPages, status } = this.state;
     return (
       <StyledApp>
-        <SearchBar onSubmit={this.handleQuerySubmit} perPage={perPage} />
-
-        {images && <ImageGallery images={images} />}
-        {page && (
+        <SearchBar onSubmit={this.handleQuerySubmit} />
+        <ToastContainer autoClose={3000} />
+        <ImageGallery query={this.state.query} />
+        {/* {page && (
           <LoadMoreBtn
             query={query}
             page={page + 1}
@@ -63,7 +36,7 @@ export class App extends Component {
             totalPages={totalPages}
           />
         )}
-        {status === 'pending' && <Loader />}
+        {status === 'pending' && <Loader />} */}
       </StyledApp>
     );
   }

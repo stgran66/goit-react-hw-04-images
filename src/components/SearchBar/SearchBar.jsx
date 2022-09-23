@@ -1,6 +1,7 @@
 import { Component } from 'react';
+import { toast } from 'react-toastify';
 import { StyledSearchBar } from './SearchBar.styled';
-import { getImages } from 'services/pixabayApi';
+import 'react-toastify/dist/ReactToastify.css';
 
 export class SearchBar extends Component {
   state = {
@@ -11,19 +12,22 @@ export class SearchBar extends Component {
     this.setState({ query: e.currentTarget.value });
   };
 
+  handleSubmit = e => {
+    e.preventDefault();
+    const query = e.currentTarget.query.value.trim();
+
+    if (query === '') {
+      toast('Please write something');
+      return;
+    }
+
+    this.props.onSubmit(query);
+  };
+
   render() {
     return (
       <StyledSearchBar>
-        <form
-          className="form"
-          onSubmit={async e => {
-            e.preventDefault();
-            const query = e.currentTarget.query.value;
-            const data = await getImages(query, this.props.perPage);
-            console.log(data);
-            this.props.onSubmit(data, query);
-          }}
-        >
+        <form className="form" onSubmit={this.handleSubmit}>
           <button type="submit" className="button">
             <span className="button-label">Search</span>
           </button>
