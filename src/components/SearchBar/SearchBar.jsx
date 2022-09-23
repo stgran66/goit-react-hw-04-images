@@ -19,7 +19,7 @@ export class SearchBar extends Component {
           onSubmit={async e => {
             e.preventDefault();
             const query = e.currentTarget.query.value;
-            const data = await getImages(query);
+            const data = await getImages(query, this.props.perPage);
             console.log(data);
             this.props.onSubmit(data, query);
           }}

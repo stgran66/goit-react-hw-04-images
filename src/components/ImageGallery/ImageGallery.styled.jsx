@@ -11,4 +11,8 @@ export const GalleryList = styled.ul`
   list-style: none;
   margin-left: auto;
   margin-right: auto;
+
+  > p {
+    grid-column: 3;
+  }
 `;

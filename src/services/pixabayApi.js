@@ -1,11 +1,32 @@
 import axios from 'axios';
 
-const API_KEY = '29209945-1fb6dc06427a139c565976a83';
+const PIXABAY_KEY = '29209945-1fb6dc06427a139c565976a83';
 axios.defaults.baseURL = `https://pixabay.com/api`;
 
-export const getImages = async query => {
-  const response = await axios.get(`?key=${API_KEY}&q=${query}`);
+export const getImages = async (query, perPage) => {
+  const searchParams = new URLSearchParams({
+    key: PIXABAY_KEY,
+    q: query,
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    page: 1,
+    per_page: perPage,
+  });
+  const response = await axios.get(`?${searchParams}`);
   return response.data;
 };
 
-// https://pixabay.com/api/videos/?key=29209945-1fb6dc06427a139c565976a83&q=yellow+flowers
+export const getMoreImages = async (query, page, perPage) => {
+  const searchParams = new URLSearchParams({
+    key: PIXABAY_KEY,
+    q: query,
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    page: page,
+    per_page: perPage,
+  });
+  const response = await axios.get(`?${searchParams}`);
+  return response.data;
+};
