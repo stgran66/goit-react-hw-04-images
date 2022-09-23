@@ -1,10 +1,11 @@
 import { Component } from 'react';
 import { getImages } from 'services/pixabayApi';
+import { createPortal } from 'react-dom';
+import { ImageModal } from 'components/Modal/Modal';
 import { GalleryList, ImageGalleryContainer } from './ImageGallery.styled';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
-import { Loader } from './Loader/Loader';
+import { Loader } from '../Loader/Loader';
 import { LoadMoreBtn } from 'components/LoadMoreBtn/LoadMoreBtn';
-import { ImageModal } from 'components/Modal/Modal';
 
 export class ImageGallery extends Component {
   state = {
@@ -15,6 +16,7 @@ export class ImageGallery extends Component {
     status: 'idle',
     error: null,
     isModalOpen: false,
+    activeImage: null,
   };
 
   componentDidUpdate(prevProps) {
@@ -67,8 +69,11 @@ export class ImageGallery extends Component {
     this.setState({ status: 'resolved' });
   };
 
-  openModal = () => {
-    this.setState({ isModalOpen: true });
+  openModal = e => {
+    // this.setState({ isModalOpen: true });
+    const imageId = Number(e.currentTarget.id);
+    const activeImage = this.state.images.find(image => image.id === imageId);
+    this.setState({ activeImage, isModalOpen: true });
   };
 
   closeModal = () => {
@@ -77,7 +82,7 @@ export class ImageGallery extends Component {
   };
 
   render() {
-    const { images, status, error, isModalOpen } = this.state;
+    const { images, status, error, isModalOpen, activeImage } = this.state;
     return (
       <ImageGalleryContainer>
         <GalleryList>
@@ -88,13 +93,11 @@ export class ImageGallery extends Component {
                 key={image.id}
                 image={image}
                 onOpen={this.openModal}
-                onClose={this.closeModal}
-                isModalOpen={isModalOpen}
               />
             ))}
 
           {images && images.length === 0 && (
-            <p>Sorry :(, we couldn't find anything by your query</p>
+            <p>Sorry :( we couldn't find anything by your query</p>
           )}
 
           {status === 'rejected' && <p>{error}</p>}
@@ -112,6 +115,15 @@ export class ImageGallery extends Component {
             afterLoading={this.setStatusResolved}
           />
         )}
+        {isModalOpen &&
+          createPortal(
+            <ImageModal
+              onClose={this.closeModal}
+              imageURL={activeImage.largeImageURL}
+              tags={activeImage.tags}
+            />,
+            document.querySelector('#modal-container')
+          )}
       </ImageGalleryContainer>
     );
   }
