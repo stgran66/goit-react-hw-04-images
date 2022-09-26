@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { getImages } from 'services/pixabayApi';
 import { createPortal } from 'react-dom';
@@ -17,6 +18,10 @@ export class ImageGallery extends Component {
     error: null,
     isModalOpen: false,
     activeImage: null,
+  };
+
+  static propTypes = {
+    query: PropTypes.string.isRequired,
   };
 
   componentDidUpdate(prevProps) {
@@ -77,7 +82,6 @@ export class ImageGallery extends Component {
   };
 
   closeModal = () => {
-    console.log('close function');
     this.setState({ isModalOpen: false });
   };
 

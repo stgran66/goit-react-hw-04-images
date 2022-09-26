@@ -1,7 +1,14 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import { StyledImageModal } from './Modal.styled';
 
 export class ImageModal extends Component {
+  static propTypes = {
+    onClose: PropTypes.func.isRequired,
+    imageURL: PropTypes.string,
+    tags: PropTypes.string.isRequired,
+  };
+
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyDown);
   }
@@ -17,9 +24,7 @@ export class ImageModal extends Component {
   };
 
   handleBackdorpClick = e => {
-    console.log(e.currentTarget === e.target);
     if (e.currentTarget === e.target) {
-      console.log('hi');
       this.props.onClose();
     }
   };
