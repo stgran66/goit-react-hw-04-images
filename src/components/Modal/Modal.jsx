@@ -18,7 +18,6 @@ export const ImageModal = ({ onClose, imageURL, tags }) => {
   };
   const handleKeyDown = e => {
     if (e.code === 'Escape') {
-      console.log('clicked ESC');
       onClose();
     }
   };

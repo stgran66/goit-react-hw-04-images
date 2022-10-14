@@ -1,32 +1,21 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { SearchBar } from './SearchBar/SearchBar';
 import { StyledApp } from './App.styled';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 
-export class App extends Component {
-  state = {
-    query: '',
+export const App = () => {
+  const [query, setQuery] = useState('');
+
+  const handleQuerySubmit = query => {
+    setQuery(query);
   };
 
-  handleQuerySubmit = query => {
-    this.setState({ query });
-  };
-
-  handleMoreImages = data => {
-    this.setState(({ images, page }) => ({
-      images: [...images, ...data.hits],
-      page: page + 1,
-    }));
-  };
-
-  render() {
-    return (
-      <StyledApp>
-        <SearchBar onSubmit={this.handleQuerySubmit} />
-        <ToastContainer autoClose={3000} />
-        <ImageGallery query={this.state.query} />
-      </StyledApp>
-    );
-  }
-}
+  return (
+    <StyledApp>
+      <SearchBar onSubmit={handleQuerySubmit} />
+      <ToastContainer autoClose={3000} />
+      <ImageGallery query={query} />
+    </StyledApp>
+  );
+};
