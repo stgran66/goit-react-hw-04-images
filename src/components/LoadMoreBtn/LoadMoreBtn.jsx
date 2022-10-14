@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { StyledBtn } from './LoadMoreBtn.styled';
-import { getMoreImages } from 'services/pixabayApi';
+import { getImages } from 'services/pixabayApi';
 
 export const LoadMoreBtn = ({
   query,
@@ -18,7 +18,7 @@ export const LoadMoreBtn = ({
       disabled={isLastPage}
       onClick={async () => {
         whileLoading();
-        const data = await getMoreImages(query, page, perPage);
+        const data = await getImages(query, page, perPage);
         onQuery(data);
         afterLoading();
       }}

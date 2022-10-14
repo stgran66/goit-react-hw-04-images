@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { getImages } from 'services/pixabayApi';
 import { createPortal } from 'react-dom';
 import { ImageModal } from 'components/Modal/Modal';
@@ -8,127 +8,105 @@ import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Loader } from '../Loader/Loader';
 import { LoadMoreBtn } from 'components/LoadMoreBtn/LoadMoreBtn';
 
-export class ImageGallery extends Component {
-  state = {
-    images: null,
-    page: null,
-    totalPages: null,
-    perPage: 12,
-    status: 'idle',
-    error: null,
-    isModalOpen: false,
-    activeImage: null,
-  };
+export const ImageGallery = ({ query }) => {
+  const [images, setImages] = useState(null);
+  const [page, setPage] = useState(null);
+  const [totalPages, setTotalPages] = useState(null);
+  const [perPage] = useState(12);
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeImage, setActiveImage] = useState(null);
 
-  static propTypes = {
-    query: PropTypes.string.isRequired,
-  };
+  useEffect(() => {
+    if (query !== '') {
+      setStatus('pending');
+      setImages(null);
 
-  componentDidUpdate(prevProps) {
-    const prevQuery = prevProps.query;
-    const newQuery = this.props.query;
+      const getImagesByQuery = async query => {
+        try {
+          const data = await getImages(query, perPage);
 
-    if (prevQuery !== newQuery) {
-      this.setState({ status: 'pending', images: null });
-
-      this.getImagesByQuery(newQuery);
-    }
-  }
-
-  getImagesByQuery = async query => {
-    try {
-      const data = await getImages(query, this.state.perPage);
-
-      this.setState({
-        images: data.hits,
-        page: 1,
-        totalPages: Math.ceil(data.totalHits / this.state.perPage),
-        status: 'resolved',
-      });
-
-      // else {
-      //   this.setState({
-      //     error: "Sorry, we couldn't find anything by your query",
-      //     status: 'rejected',
-      //   });
-      // }
-    } catch (error) {
-      this.setState({ error, status: 'rejected' });
-    }
-  };
-
-  onLoadMore = data => {
-    this.setState(({ images, page }) => {
-      return {
-        images: [...images, ...data.hits],
-        page: page + 1,
+          setImages(data.hits);
+          setPage(1);
+          setTotalPages(Math.ceil(data.totalHits / perPage));
+          setStatus('resolved');
+        } catch (error) {
+          setError(error.message);
+          setStatus('rejected');
+        }
       };
-    });
+
+      getImagesByQuery(query);
+    }
+  }, [query, perPage]);
+
+  const onLoadMore = data => {
+    setImages(prevState => [...prevState, ...data.hits]);
+    setPage(prevState => prevState + 1);
   };
 
-  setStatusPending = () => {
-    this.setState({ status: 'pending' });
+  const setStatusPending = () => {
+    setStatus('pending');
   };
 
-  setStatusResolved = () => {
-    this.setState({ status: 'resolved' });
+  const setStatusResolved = () => {
+    setStatus('resolved');
   };
 
-  openModal = e => {
-    // this.setState({ isModalOpen: true });
+  const openModal = e => {
     const imageId = Number(e.currentTarget.id);
-    const activeImage = this.state.images.find(image => image.id === imageId);
-    this.setState({ activeImage, isModalOpen: true });
+    const activeImage = images.find(image => image.id === imageId);
+
+    setActiveImage(activeImage);
+    setIsModalOpen(true);
   };
 
-  closeModal = () => {
-    this.setState({ isModalOpen: false });
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
-  render() {
-    const { images, status, error, isModalOpen, activeImage } = this.state;
-    return (
-      <ImageGalleryContainer>
-        <GalleryList>
-          {images &&
-            images.length > 0 &&
-            images.map(image => (
-              <ImageGalleryItem
-                key={image.id}
-                image={image}
-                onOpen={this.openModal}
-              />
-            ))}
+  return (
+    <ImageGalleryContainer>
+      <GalleryList>
+        {images &&
+          images.length > 0 &&
+          images.map(image => (
+            <ImageGalleryItem key={image.id} image={image} onOpen={openModal} />
+          ))}
 
-          {images && images.length === 0 && (
-            <p>Sorry :( we couldn't find anything by your query</p>
-          )}
-
-          {status === 'rejected' && <p>{error}</p>}
-        </GalleryList>
-
-        {status === 'pending' && <Loader />}
-        {status === 'resolved' && images.length > 0 && (
-          <LoadMoreBtn
-            query={this.props.query}
-            page={this.state.page + 1}
-            totalPages={this.state.totalPages}
-            perPage={this.state.perPage}
-            onQuery={this.onLoadMore}
-            whileLoading={this.setStatusPending}
-            afterLoading={this.setStatusResolved}
-          />
+        {images && images.length === 0 && (
+          <p>Sorry :( we couldn't find anything by your query</p>
         )}
-        {isModalOpen &&
-          createPortal(
-            <ImageModal
-              onClose={this.closeModal}
-              imageURL={activeImage.largeImageURL}
-              tags={activeImage.tags}
-            />,
-            document.querySelector('#modal-container')
-          )}
-      </ImageGalleryContainer>
-    );
-  }
-}
+
+        {status === 'rejected' && <p>{error}</p>}
+      </GalleryList>
+
+      {status === 'pending' && <Loader />}
+      {status === 'resolved' && images.length > 0 && (
+        <LoadMoreBtn
+          query={query}
+          page={page + 1}
+          totalPages={totalPages}
+          perPage={perPage}
+          onQuery={onLoadMore}
+          whileLoading={setStatusPending}
+          afterLoading={setStatusResolved}
+        />
+      )}
+      {isModalOpen &&
+        createPortal(
+          <ImageModal
+            onClose={closeModal}
+            imageURL={activeImage.largeImageURL}
+            tags={activeImage.tags}
+          />,
+          document.querySelector('#modal-container')
+        )}
+    </ImageGalleryContainer>
+  );
+};
+
+ImageGallery.propTypes = {
+  query: PropTypes.string.isRequired,
+};

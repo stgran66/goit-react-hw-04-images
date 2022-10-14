@@ -1,42 +1,39 @@
-import { Component } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { StyledImageModal } from './Modal.styled';
 
-export class ImageModal extends Component {
-  static propTypes = {
-    onClose: PropTypes.func.isRequired,
-    imageURL: PropTypes.string,
-    tags: PropTypes.string.isRequired,
-  };
+export const ImageModal = ({ onClose, imageURL, tags }) => {
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
-  }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  });
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  handleKeyDown = e => {
-    if (e.code === 'Escape') {
-      this.props.onClose();
-    }
-  };
-
-  handleBackdorpClick = e => {
+  const handleBackdorpClick = e => {
     if (e.currentTarget === e.target) {
-      this.props.onClose();
+      onClose();
+    }
+  };
+  const handleKeyDown = e => {
+    if (e.code === 'Escape') {
+      console.log('clicked ESC');
+      onClose();
     }
   };
 
-  render() {
-    const { imageURL, tags } = this.props;
-    return (
-      <StyledImageModal onClick={this.handleBackdorpClick}>
-        <div className="modal">
-          <img src={imageURL} alt={tags} />
-        </div>
-      </StyledImageModal>
-    );
-  }
-}
+  return (
+    <StyledImageModal onClick={handleBackdorpClick}>
+      <div className="modal">
+        <img src={imageURL} alt={tags} />
+      </div>
+    </StyledImageModal>
+  );
+};
+
+ImageModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  imageURL: PropTypes.string,
+  tags: PropTypes.string.isRequired,
+};
