@@ -8,21 +8,20 @@ export const LoadMoreBtn = ({
   onQuery,
   totalPages,
   perPage,
-  whileLoading,
-  afterLoading,
+  showLoading,
+  closeLoading,
 }) => {
   const isLastPage = page > totalPages;
+
+  const onLoadMore = async () => {
+    showLoading();
+    const data = await getImages(query, page, perPage);
+    onQuery(data);
+    closeLoading();
+  };
+
   return (
-    <StyledBtn
-      type="button"
-      disabled={isLastPage}
-      onClick={async () => {
-        whileLoading();
-        const data = await getImages(query, page, perPage);
-        onQuery(data);
-        afterLoading();
-      }}
-    >
+    <StyledBtn type="button" disabled={isLastPage} onClick={onLoadMore}>
       {isLastPage ? 'There is no more image' : 'Load More'}
     </StyledBtn>
   );

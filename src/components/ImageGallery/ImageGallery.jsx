@@ -90,8 +90,8 @@ export const ImageGallery = ({ query }) => {
           totalPages={totalPages}
           perPage={perPage}
           onQuery={onLoadMore}
-          whileLoading={setStatusPending}
-          afterLoading={setStatusResolved}
+          showLoading={setStatusPending}
+          closeLoading={setStatusResolved}
         />
       )}
       {isModalOpen &&
