@@ -15,7 +15,7 @@ export const LoadMoreBtn = ({
 
   const onLoadMore = async () => {
     showLoading();
-    const data = await getImages(query, page, perPage);
+    const data = await getImages(query, perPage, page);
     onQuery(data);
     closeLoading();
   };
@@ -33,6 +33,6 @@ LoadMoreBtn.propTypes = {
   totalPages: PropTypes.number.isRequired,
   perPage: PropTypes.number.isRequired,
   onQuery: PropTypes.func.isRequired,
-  whileLoading: PropTypes.func.isRequired,
-  afterLoading: PropTypes.func.isRequired,
+  showLoading: PropTypes.func.isRequired,
+  closeLoading: PropTypes.func.isRequired,
 };

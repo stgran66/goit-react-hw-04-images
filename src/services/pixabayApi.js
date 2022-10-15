@@ -3,7 +3,7 @@ import axios from 'axios';
 const PIXABAY_KEY = '29209945-1fb6dc06427a139c565976a83';
 axios.defaults.baseURL = `https://pixabay.com/api`;
 
-export const getImages = async (query, page = 1, perPage) => {
+export const getImages = async (query, perPage, page = 1) => {
   const searchParams = new URLSearchParams({
     key: PIXABAY_KEY,
     q: query,
